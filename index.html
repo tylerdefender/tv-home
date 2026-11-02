@@ -9,7 +9,7 @@
         body {
             width: 1920px;
             height: 1080px;
-            cursor: none !important; /* Hides the mouse arrow completely */
+            cursor: none !important;
             background: linear-gradient(to top, rgba(10,11,15,0.8) 0%, rgba(10,11,15,0) 30%), linear-gradient(170deg, transparent 65%, #181c26 65.2%), linear-gradient(195deg, transparent 58%, #202b36 58.2%), linear-gradient(165deg, transparent 48%, #273340 48.2%), radial-gradient(circle at 65% 48%, #ffb366 0%, rgba(255,179,102,0.2) 20%, transparent 50%), linear-gradient(to top, #484b6a 0%, #212239 100%);
             background-size: cover;
             color: #ffffff;
@@ -28,8 +28,8 @@
         .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 35px; width: 100%; align-items: center; }
         .row { display: flex; gap: 30px; justify-content: center; }
         
-        /* Grid Tile Setup */
-        .tile { position: relative; width: 220px; height: 132px; border-radius: 20px; display: inline-flex; justify-content: center; align-items: center; transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
+        /* Grid Tile Configurations */
+        .tile { position: relative; width: 220px; height: 132px; border-radius: 20px; display: inline-flex; justify-content: center; align-items: center; transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
         .tile span { font-size: 1.5rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
         
         .tile[data-app="netflix"] { background: #E50914; }
@@ -41,7 +41,7 @@
         .tile[data-app="hulu"] span { color: #000000; text-shadow: none; }
         .tile[data-app="peacock"] { background: linear-gradient(135deg, #151518 0%, #2a2c35 100%); }
         
-        /* This style triggers instantly whenever the TV remote highlights a button natively */
+        /* High Contrast Scale Ring State */
         .tile:focus { transform: scale(1.22); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.85); outline: 6px solid #ffffff !important; outline-offset: 4px; z-index: 10; }
     </style>
 </head>
@@ -54,31 +54,51 @@
 
     <div class="grid-container">
         <div class="row">
-            <!-- Hardware links placed directly inside the HTML structure -->
-            <a href="https://netflix.com" class="tile" data-app="netflix" id="start-node"><span>Netflix</span></a>
-            <a href="https://amazon.com" class="tile" data-app="prime"><span>Prime Video</span></a>
-            <a href="https://youtube.com" class="tile" data-app="youtube"><span>YouTube</span></a>
-            <a href="https://max.com" class="tile" data-app="hbo"><span>Max</span></a>
+            <!-- tabindex="0" exposes the elements to the active browser navigation layer -->
+            <a href="https://netflix.com" class="tile" data-app="netflix" tabindex="0" id="item-0-0"><span>Netflix</span></a>
+            <a href="https://amazon.com" class="tile" data-app="prime" tabindex="0" id="item-0-1"><span>Prime Video</span></a>
+            <a href="https://youtube.com" class="tile" data-app="youtube" tabindex="0" id="item-0-2"><span>YouTube</span></a>
+            <a href="https://max.com" class="tile" data-app="hbo" tabindex="0" id="item-0-3"><span>Max</span></a>
         </div>
         <div class="row">
-            <a href="https://disneyplus.com" class="tile" data-app="disney"><span>Disney+</span></a>
-            <a href="https://hulu.com" class="tile" data-app="hulu"><span>Hulu</span></a>
-            <a href="https://peacocktv.com" class="tile" data-app="peacock"><span>Peacock</span></a>
+            <a href="https://disneyplus.com" class="tile" data-app="disney" tabindex="0" id="item-1-0"><span>Disney+</span></a>
+            <a href="https://hulu.com" class="tile" data-app="hulu" tabindex="0" id="item-1-1"><span>Hulu</span></a>
+            <a href="https://peacocktv.com" class="tile" data-app="peacock" tabindex="0" id="item-1-2"><span>Peacock</span></a>
         </div>
     </div>
 
     <script>
+        var layout = [["netflix", "prime", "youtube", "hbo"], ["disney", "hulu", "peacock"]];
+        var row = 0;
+        var col = 0;
+
         window.onload = function () {
-            // Force the TV's hardware focus to Netflix immediately on load
-            document.getElementById("start-node").focus();
+            // Initial focus drop onto Netflix tile
+            document.getElementById("item-0-0").focus();
             
-            // Large Running Clock Script
             setInterval(function() {
                 var d = new Date();
                 document.getElementById("status-bar").innerText = d.toLocaleTimeString([], {hour: "2-digit", minute:"2-digit", hour12: false});
                 document.getElementById("date-bar").innerText = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
             }, 1000);
         };
+
+        document.addEventListener("keydown", function(e) {
+            var key = e.keyCode || e.which;
+            var moved = false;
+
+            // Intercept standard remote mapping signals and execute geometric calculation
+            if (key === 37 && col > 0) { col--; moved = true; } // Left
+            if (key === 39 && col < layout[row].length - 1) { col++; moved = true; } // Right
+            if (key === 38 && row > 0) { row--; if (col >= layout[row].length) col = layout[row].length - 1; moved = true; } // Up
+            if (key === 40 && row < layout.length - 1) { row++; if (col >= layout[row].length) col = layout[row].length - 1; moved = true; } // Down
+
+            if (moved) {
+                e.preventDefault(); // Blocks the TV browser from doing generic loose spatial guessing
+                var target = document.getElementById("item-" + row + "-" + col);
+                if (target) target.focus(); // Physically locks focus down to the calculated matrix node
+            }
+        });
     </script>
 </body>
 </html>
