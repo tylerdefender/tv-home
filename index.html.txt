@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920x1080">
+    <title>tvOS Outdoor Hub</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            width: 1920px;
+            height: 1080px;
+            background: linear-gradient(to top, rgba(10,11,15,0.8) 0%, rgba(10,11,15,0) 30%), linear-gradient(170deg, transparent 65%, #181c26 65.2%), linear-gradient(195deg, transparent 58%, #202b36 58.2%), linear-gradient(165deg, transparent 48%, #273340 48.2%), radial-gradient(circle at 65% 48%, #ffb366 0%, rgba(255,179,102,0.2) 20%, transparent 50%), linear-gradient(to top, #484b6a 0%, #212239 100%);
+            background-size: cover;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 80px 0 110px 0;
+            -webkit-font-smoothing: antialiased;
+        }
+        #clock-container { position: relative; z-index: 2; text-align: center; margin-top: 10px; }
+        #status-bar { font-size: 9.5rem; font-weight: 200; letter-spacing: -3px; color: #ffffff; text-shadow: 0 4px 35px rgba(0, 0, 0, 0.6); line-height: 1; }
+        #date-bar { font-size: 1.6rem; font-weight: 600; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; letter-spacing: 3px; margin-top: 15px; text-shadow: 0 2px 15px rgba(0,0,0,0.5); }
+        .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 35px; width: 100%; align-items: center; }
+        .row { display: flex; gap: 30px; justify-content: center; }
+        .tile { position: relative; width: 220px; height: 132px; border-radius: 20px; display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .tile span { font-size: 1.5rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .tile[data-app="netflix"] { background: #E50914; }
+        .tile[data-app="prime"] { background: #00A8E1; }
+        .tile[data-app="youtube"] { background: #FF0000; }
+        .tile[data-app="hbo"] { background: linear-gradient(135deg, #002BE7 0%, #00041B 100%); }
+        .tile[data-app="disney"] { background: linear-gradient(135deg, #021B79 0%, #0575E6 100%); }
+        .tile[data-app="hulu"] { background: #1CE783; }
+        .tile[data-app="hulu"] span { color: #000000; text-shadow: none; }
+        .tile[data-app="peacock"] { background: linear-gradient(135deg, #151518 0%, #2a2c35 100%); }
+        .tile.focused { transform: scale(1.22); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.85); outline: 6px solid #ffffff; outline-offset: 4px; z-index: 10; }
+    </style>
+</head>
+<body>
+
+    <div id="clock-container">
+        <div id="status-bar">00:00</div>
+        <div id="date-bar">Loading Date</div>
+    </div>
+
+    <div class="grid-container">
+        <div class="row">
+            <div class="tile focused" data-app="netflix"><span>Netflix</span></div>
+            <div class="tile" data-app="prime"><span>Prime Video</span></div>
+            <div class="tile" data-app="youtube"><span>YouTube</span></div>
+            <div class="tile" data-app="hbo"><span>Max</span></div>
+        </div>
+        <div class="row">
+            <div class="tile" data-app="disney"><span>Disney+</span></div>
+            <div class="tile" data-app="hulu"><span>Hulu</span></div>
+            <div class="tile" data-app="peacock"><span>Peacock</span></div>
+        </div>
+    </div>
+
+    <script>
+        var layout = [["netflix", "prime", "youtube", "hbo"], ["disney", "hulu", "peacock"]];
+        var row = 0;
+        var col = 0;
+
+        window.onload = function () {
+            try {
+                tizen.tvinputdevice.registerKey("Left");
+                tizen.tvinputdevice.registerKey("Right");
+                tizen.tvinputdevice.registerKey("Up");
+                tizen.tvinputdevice.registerKey("Down");
+                tizen.tvinputdevice.registerKey("Enter");
+            } catch(e) {}
+            setInterval(function() {
+                var d = new Date();
+                document.getElementById("status-bar").innerText = d.toLocaleTimeString([], {hour: "2-digit", minute:"2-digit", hour12: false});
+                document.getElementById("date-bar").innerText = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+            }, 1000);
+        };
+
+        document.addEventListener("keydown", function(e) {
+            var prevRow = row;
+            var prevCol = col;
+            if (e.keyCode === 37 && col > 0) col--;
+            if (e.keyCode === 39 && col < layout[row].length - 1) col++;
+            if (e.keyCode === 38 && row > 0) { row--; if (col >= layout[row].length) col = layout[row].length - 1; }
+            if (e.keyCode === 40 && row < layout.length - 1) { row++; if (col >= layout[row].length) col = layout[row].length - 1; }
+            if (e.keyCode === 13) { launchApp(layout[row][col]); return; }
+            
+            if (prevRow !== row || prevCol !== col) {
+                document.querySelector("[data-app='" + layout[prevRow][prevCol] + "']").classList.remove("focused");
+                document.querySelector("[data-app='" + layout[row][col] + "']").classList.add("focused");
+            }
+        });
+
+        function launchApp(id) {
+            try {
+                if (id === "netflix") tizen.application.launch("3201512006785", null, null);
+                if (id === "prime") tizen.application.launch("3201910019365", null, null);
+                if (id === "youtube") tizen.application.launch("9Ur5v6xK6g.YouTube", null, null);
+                if (id === "hbo") tizen.application.launch("3201601007250", null, null);
+                if (id === "disney") tizen.application.launch("3201901017640", null, null);
+                if (id === "hulu") tizen.application.launch("3201601007624", null, null);
+                if (id === "peacock") tizen.application.launch("3202010022246", null, null);
+            } catch (err) {
+                var urls = {
+                    netflix: "https://netflix.com",
+                    prime: "https://amazon.com",
+                    youtube: "https://youtube.com",
+                    hbo: "https://max.com",
+                    disney: "https://disneyplus.com",
+                    hulu: "https://hulu.com",
+                    peacock: "https://peacocktv.com"
+                };
+                window.location.href = urls[id];
+            }
+        }
+    </script>
+</body>
+</html>
