@@ -21,24 +21,28 @@
             padding: 80px 0 110px 0;
             -webkit-font-smoothing: antialiased;
         }
-        
-        /* The Secret Trick: Invisible video overlay that tricks the TV into killing the pointer */
-        #tizen-bypass-video {
-            position: absolute;
-            top: 0; left: 0; width: 1px; height: 1px;
-            opacity: 0.01;
-            pointer-events: none;
-            z-index: 0;
-        }
-
         #clock-container { position: relative; z-index: 2; text-align: center; margin-top: 10px; }
         #status-bar { font-size: 9.5rem; font-weight: 200; letter-spacing: -3px; color: #ffffff; text-shadow: 0 4px 35px rgba(0, 0, 0, 0.6); line-height: 1; }
         #date-bar { font-size: 1.6rem; font-weight: 600; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; letter-spacing: 3px; margin-top: 15px; text-shadow: 0 2px 15px rgba(0,0,0,0.5); }
         .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 35px; width: 100%; align-items: center; }
         .row { display: flex; gap: 30px; justify-content: center; }
         
-        .tile { position: relative; width: 220px; height: 132px; border-radius: 20px; display: inline-flex; justify-content: center; align-items: center; transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .tile span { font-size: 1.5rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        /* Premium Card Button Elements */
+        .tile { 
+            position: relative; 
+            width: 220px; 
+            height: 132px; 
+            border-radius: 20px; 
+            display: inline-flex; 
+            justify-content: center; 
+            align-items: center; 
+            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6); 
+            overflow: hidden; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            cursor: pointer;
+        }
+        .tile span { font-size: 1.5rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.3); pointer-events: none; }
         
         .tile[data-app="netflix"] { background: #E50914; }
         .tile[data-app="prime"] { background: #00A8E1; }
@@ -49,16 +53,11 @@
         .tile[data-app="hulu"] span { color: #000000; text-shadow: none; }
         .tile[data-app="peacock"] { background: linear-gradient(135deg, #151518 0%, #2a2c35 100%); }
         
-        /* Pure visual highlight driven strictly by our JS array */
-        .tile.focused { transform: scale(1.22); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.85); outline: 6px solid #ffffff !important; outline-offset: 4px; z-index: 10; }
+        /* Visual scale response triggered on pointer hover */
+        .tile:hover { transform: scale(1.22); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.85); outline: 6px solid #ffffff !important; outline-offset: 4px; z-index: 10; }
     </style>
 </head>
 <body>
-
-    <!-- Dummy video stream to instantly trick Tizen's pointer mechanism -->
-    <video id="tizen-bypass-video" autoplay loop muted playsinline>
-        <source src="data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wStandardData..." type="video/mp4">
-    </video>
 
     <div id="clock-container">
         <div id="status-bar">00:00</div>
@@ -67,62 +66,27 @@
 
     <div class="grid-container">
         <div class="row">
-            <div class="tile focused" data-app="netflix" id="item-0-0"><span>Netflix</span></div>
-            <div class="tile" data-app="prime" id="item-0-1"><span>Prime Video</span></div>
-            <div class="tile" data-app="youtube" id="item-0-2"><span>YouTube</span></div>
-            <div class="tile" data-app="hbo" id="item-0-3"><span>Max</span></div>
+            <!-- Native inline mouse click execution listeners -->
+            <div class="tile" data-app="netflix" onclick="window.location.href='https://netflix.com'"><span>Netflix</span></div>
+            <div class="tile" data-app="prime" onclick="window.location.href='https://amazon.com'"><span>Prime Video</span></div>
+            <div class="tile" data-app="youtube" onclick="window.location.href='https://youtube.com'"><span>YouTube</span></div>
+            <div class="tile" data-app="hbo" onclick="window.location.href='https://max.com'"><span>Max</span></div>
         </div>
         <div class="row">
-            <div class="tile" data-app="disney" id="item-1-0"><span>Disney+</span></div>
-            <div class="tile" data-app="hulu" id="item-1-1"><span>Hulu</span></div>
-            <div class="tile" data-app="peacock" id="item-1-2"><span>Peacock</span></div>
+            <div class="tile" data-app="disney" onclick="window.location.href='https://disneyplus.com'"><span>Disney+</span></div>
+            <div class="tile" data-app="hulu" onclick="window.location.href='https://hulu.com'"><span>Hulu</span></div>
+            <div class="tile" data-app="peacock" onclick="window.location.href='https://peacocktv.com'"><span>Peacock</span></div>
         </div>
     </div>
 
     <script>
-        var layout = [["netflix", "prime", "youtube", "hbo"], ["disney", "hulu", "peacock"]];
-        var row = 0;
-        var col = 0;
-
         window.onload = function () {
-            // Keep clock running
             setInterval(function() {
                 var d = new Date();
                 document.getElementById("status-bar").innerText = d.toLocaleTimeString([], {hour: "2-digit", minute:"2-digit", hour12: false});
                 document.getElementById("date-bar").innerText = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
             }, 1000);
         };
-
-        // Listen directly to raw TV remote hardware inputs bypassing browser layers
-        document.addEventListener("keydown", function(e) {
-            var prevRow = row;
-            var prevCol = col;
-            
-            // Map remote D-pad directionals directly to layout indices
-            if (e.keyCode === 37 && col > 0) col--; // Left
-            if (e.keyCode === 39 && col < layout[row].length - 1) col++; // Right
-            if (e.keyCode === 38 && row > 0) { row--; if (col >= layout[row].length) col = layout[row].length - 1; } // Up
-            if (e.keyCode === 40 && row < layout.length - 1) { row++; if (col >= layout[row].length) col = layout[row].length - 1; } // Down
-            
-            if (e.keyCode === 13) { 
-                var urls = {
-                    netflix: "https://netflix.com",
-                    prime: "https://amazon.com",
-                    youtube: "https://youtube.com",
-                    hbo: "https://max.com",
-                    disney: "https://disneyplus.com",
-                    hulu: "https://hulu.com",
-                    peacock: "https://peacocktv.com"
-                };
-                window.location.href = urls[layout[row][col]];
-                return;
-            }
-            
-            if (prevRow !== row || prevCol !== col) {
-                document.getElementById("item-" + prevRow + "-" + prevCol).classList.remove("focused");
-                document.getElementById("item-" + row + "-" + col).classList.add("focused");
-            }
-        });
     </script>
 </body>
 </html>
