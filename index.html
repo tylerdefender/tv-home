@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -96,15 +97,17 @@
         });
 
         function launchApp(id) {
+            // 1. Try launching the TV's native application profile
             try {
-                if (id === "netflix") tizen.application.launch("3201512006785", null, null);
-                if (id === "prime") tizen.application.launch("3201910019365", null, null);
-                if (id === "youtube") tizen.application.launch("9Ur5v6xK6g.YouTube", null, null);
-                if (id === "hbo") tizen.application.launch("3201601007250", null, null);
-                if (id === "disney") tizen.application.launch("3201901017640", null, null);
-                if (id === "hulu") tizen.application.launch("3201601007624", null, null);
-                if (id === "peacock") tizen.application.launch("3202010022246", null, null);
+                if (id === "netflix") tizen.application.launch("3201512006785", onLaunchSuccess, onLaunchError);
+                if (id === "prime") tizen.application.launch("3201910019365", onLaunchSuccess, onLaunchError);
+                if (id === "youtube") tizen.application.launch("9Ur5v6xK6g.YouTube", onLaunchSuccess, onLaunchError);
+                if (id === "hbo") tizen.application.launch("3201601007250", onLaunchSuccess, onLaunchError);
+                if (id === "disney") tizen.application.launch("3201901017640", onLaunchSuccess, onLaunchError);
+                if (id === "hulu") tizen.application.launch("3201601007624", onLaunchSuccess, onLaunchError);
+                if (id === "peacock") tizen.application.launch("3202010022246", onLaunchSuccess, onLaunchError);
             } catch (err) {
+                // 2. Hardware link blocked? Instantly redirect to the TV-optimized web portals
                 var urls = {
                     netflix: "https://netflix.com",
                     prime: "https://amazon.com",
@@ -117,6 +120,8 @@
                 window.location.href = urls[id];
             }
         }
+        function onLaunchSuccess() { console.log("Success"); }
+        function onLaunchError(e) { console.log("Blocked: " + e.message); }
     </script>
 </body>
 </html>
