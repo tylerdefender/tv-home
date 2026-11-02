@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1920x1080">
     <title>tvOS Outdoor Hub</title>
+    <!-- Explicit Tizen TV core application metadata instructions -->
+    <meta name="tizen-app-control" content="enable">
+    <meta name="tizen-tvinputdevice" content="Left|Right|Up|Down|Enter">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; text-decoration: none; }
         body {
@@ -27,22 +30,8 @@
         .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 35px; width: 100%; align-items: center; }
         .row { display: flex; gap: 30px; justify-content: center; }
         
-        /* Premium Card Button Elements */
-        .tile { 
-            position: relative; 
-            width: 220px; 
-            height: 132px; 
-            border-radius: 20px; 
-            display: inline-flex; 
-            justify-content: center; 
-            align-items: center; 
-            transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6); 
-            overflow: hidden; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            cursor: pointer;
-        }
-        .tile span { font-size: 1.5rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.3); pointer-events: none; }
+        .tile { position: relative; width: 220px; height: 132px; border-radius: 20px; display: inline-flex; justify-content: center; align-items: center; transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .tile span { font-size: 1.5rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
         
         .tile[data-app="netflix"] { background: #E50914; }
         .tile[data-app="prime"] { background: #00A8E1; }
@@ -53,8 +42,8 @@
         .tile[data-app="hulu"] span { color: #000000; text-shadow: none; }
         .tile[data-app="peacock"] { background: linear-gradient(135deg, #151518 0%, #2a2c35 100%); }
         
-        /* Visual scale response triggered on pointer hover */
-        .tile:hover { transform: scale(1.22); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.85); outline: 6px solid #ffffff !important; outline-offset: 4px; z-index: 10; }
+        /* Direct visual ring scale focus */
+        .tile.focused { transform: scale(1.22); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.85); outline: 6px solid #ffffff !important; outline-offset: 4px; z-index: 10; }
     </style>
 </head>
 <body>
@@ -66,27 +55,69 @@
 
     <div class="grid-container">
         <div class="row">
-            <!-- Native inline mouse click execution listeners -->
-            <div class="tile" data-app="netflix" onclick="window.location.href='https://netflix.com'"><span>Netflix</span></div>
-            <div class="tile" data-app="prime" onclick="window.location.href='https://amazon.com'"><span>Prime Video</span></div>
-            <div class="tile" data-app="youtube" onclick="window.location.href='https://youtube.com'"><span>YouTube</span></div>
-            <div class="tile" data-app="hbo" onclick="window.location.href='https://max.com'"><span>Max</span></div>
+            <div class="tile focused" data-app="netflix" id="item-0-0"><span>Netflix</span></div>
+            <div class="tile" data-app="prime" id="item-0-1"><span>Prime Video</span></div>
+            <div class="tile" data-app="youtube" id="item-0-2"><span>YouTube</span></div>
+            <div class="tile" data-app="hbo" id="item-0-3"><span>Max</span></div>
         </div>
         <div class="row">
-            <div class="tile" data-app="disney" onclick="window.location.href='https://disneyplus.com'"><span>Disney+</span></div>
-            <div class="tile" data-app="hulu" onclick="window.location.href='https://hulu.com'"><span>Hulu</span></div>
-            <div class="tile" data-app="peacock" onclick="window.location.href='https://peacocktv.com'"><span>Peacock</span></div>
+            <div class="tile" data-app="disney" id="item-1-0"><span>Disney+</span></div>
+            <div class="tile" data-app="hulu" id="item-1-1"><span>Hulu</span></div>
+            <div class="tile" data-app="peacock" id="item-1-2"><span>Peacock</span></div>
         </div>
     </div>
 
     <script>
+        var layout = [["netflix", "prime", "youtube", "hbo"], ["disney", "hulu", "peacock"]];
+        var row = 0;
+        var col = 0;
+
         window.onload = function () {
+            // Unlocks active layout key listening from Samsung hardware profile loops
+            try {
+                ["Left", "Right", "Up", "Down", "Enter"].forEach(function(key) {
+                    tizen.tvinputdevice.registerKey(key);
+                });
+            } catch(e) {}
+
             setInterval(function() {
                 var d = new Date();
                 document.getElementById("status-bar").innerText = d.toLocaleTimeString([], {hour: "2-digit", minute:"2-digit", hour12: false});
                 document.getElementById("date-bar").innerText = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
             }, 1000);
         };
+
+        // Explicit structural execution script
+        function handleNav(code) {
+            var prevRow = row;
+            var prevCol = col;
+            
+            if (code === 37 && col > 0) col--; // Left
+            if (code === 39 && col < layout[row].length - 1) col++; // Right
+            if (code === 38 && row > 0) { row--; if (col >= layout[row].length) col = layout[row].length - 1; } // Up
+            if (code === 40 && row < layout.length - 1) { row++; if (col >= layout[row].length) col = layout[row].length - 1; } // Down
+            
+            if (prevRow !== row || prevCol !== col) {
+                document.getElementById("item-" + prevRow + "-" + prevCol).classList.remove("focused");
+                document.getElementById("item-" + row + "-" + col).classList.add("focused");
+            }
+        }
+
+        document.addEventListener("keydown", function(e) {
+            handleNav(e.keyCode);
+            if (e.keyCode === 13) {
+                var urls = {
+                    netflix: "https://netflix.com",
+                    prime: "https://amazon.com",
+                    youtube: "https://youtube.com",
+                    hbo: "https://max.com",
+                    disney: "https://disneyplus.com",
+                    hulu: "https://hulu.com",
+                    peacock: "https://peacocktv.com"
+                };
+                window.location.href = urls[layout[row][col]];
+            }
+        });
     </script>
 </body>
 </html>
