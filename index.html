@@ -26,6 +26,7 @@
         }
         #clock-container { position: relative; z-index: 2; text-align: center; margin-top: 10px; }
         #status-bar { font-size: 9rem; font-weight: 200; letter-spacing: -3px; color: #ffffff;  line-height: 1; }
+        #ampm { font-size: 2.6rem; font-weight: 400; letter-spacing: 0; margin-left: 1.2rem; vertical-align: top; position: relative; top: 1.6rem; opacity: 0.85; }
         #date-bar { font-size: 1.6rem; font-weight: 600; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; letter-spacing: 3px; margin-top: 15px;  }
         .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 3vh; width: 100%; align-items: center; }
         .row { display: flex; gap: 30px; justify-content: center; }
@@ -52,7 +53,7 @@
 <body>
 
     <div id="clock-container">
-        <div id="status-bar">00:00</div>
+        <div id="status-bar"><span id="clock">12:00</span><span id="ampm">AM</span></div>
         <div id="date-bar">Loading Date</div>
     </div>
 
@@ -105,10 +106,13 @@
         var lastTime = "";
         function tick() {
             var d = new Date();
-            var t = d.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit", hour12: false});
-            if (t === lastTime) return;
-            lastTime = t;
-            document.getElementById("status-bar").textContent = t;
+            var h = d.getHours(), m = d.getMinutes();
+            var t = (h % 12 || 12) + ":" + (m < 10 ? "0" : "") + m;
+            var ap = h < 12 ? "AM" : "PM";
+            if (t + ap === lastTime) return;
+            lastTime = t + ap;
+            document.getElementById("clock").textContent = t;
+            document.getElementById("ampm").textContent = ap;
             document.getElementById("date-bar").textContent = d.toLocaleDateString("en-US", {weekday: "long", month: "long", day: "numeric"});
         }
 
