@@ -68,12 +68,12 @@
             <a class="tile" href="https://www.hulu.com" data-app="hulu" id="item-1-0"><span>Hulu</span></a>
             <a class="tile" href="https://www.peacocktv.com" data-app="peacock" id="item-1-1"><span>Peacock</span></a>
             <a class="tile" href="https://open.spotify.com" data-app="spotify" id="item-1-2"><span>Spotify</span></a>
-            <a class="tile" href="https://www.paramountplus.com" data-app="paramount" id="item-1-4"><span>Paramount+</span></a>
+            <a class="tile" href="https://www.paramountplus.com" data-app="paramount" id="item-1-3"><span>Paramount+</span></a>
         </div>
         <div class="row">
             <a class="tile" href="#" data-app="livetv" id="item-2-0"><span>Live TV</span></a>
             <a class="tile" href="#" data-app="source" id="item-2-1"><span>Inputs</span></a>
-            <a class="tile" href="#" data-app="settings" id="item-2-4"><span>Settings</span></a>
+            <a class="tile" href="#" data-app="settings" id="item-2-2"><span>Settings</span></a>
         </div>
     </div>
 
@@ -84,6 +84,14 @@
         var appIds = { netflix: "org.tizen.netflix-app", prime: "org.tizen.primevideo", youtube: "9Ur5IzDKqV.TizenYouTube", hbo: "5b8c3eb16b.BeamCTVDev", disney: "MCmYXNxgcu.DisneyPlus", hulu: "LBUAQX1exg.Hulu", peacock: "gzcc4LRFBF.Peacock", spotify: "rJeHak5zRg.Spotify", paramount: "rJyOSqC6Up.CBSAllAccess", livetv: "com.samsung.tv.coba.livetv", source: "com.samsung.tv.coba.source", settings: "com.samsung.tv.coba.setting" };
 
         function tile(r, c) { return document.getElementById("item-" + r + "-" + c); }
+        function nearest(r) {
+            var b = tile(row, col).getBoundingClientRect(), x = b.left + b.width / 2, best = 0, bd = 1e9;
+            for (var i = 0; i < layout[r].length; i++) {
+                var q = tile(r, i).getBoundingClientRect(), d = Math.abs(q.left + q.width / 2 - x);
+                if (d < bd) { bd = d; best = i; }
+            }
+            return best;
+        }
         var cur = null;
         function setFocus(r, c) {
             row = r; col = c;
@@ -126,10 +134,9 @@
             var r = row, c = col;
             if (e.keyCode === 37 && c > 0) c--;
             else if (e.keyCode === 39 && c < layout[r].length - 1) c++;
-            else if (e.keyCode === 38 && r > 0) r--;
-            else if (e.keyCode === 40 && r < layout.length - 1) r++;
+            else if (e.keyCode === 38 && r > 0) { r--; c = nearest(r); }
+            else if (e.keyCode === 40 && r < layout.length - 1) { r++; c = nearest(r); }
             else return;
-            if (c >= layout[r].length) c = layout[r].length - 1;
             e.preventDefault();
             setFocus(r, c);
         });
