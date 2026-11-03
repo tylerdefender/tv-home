@@ -28,7 +28,7 @@
         #clock-container { position: relative; z-index: 2; text-align: center; margin-top: 10px; }
         #status-bar { font-size: 9rem; font-weight: 200; letter-spacing: -3px; color: #ffffff; text-shadow: 0 4px 35px rgba(0, 0, 0, 0.6); line-height: 1; }
         #date-bar { font-size: 1.6rem; font-weight: 600; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; letter-spacing: 3px; margin-top: 15px; text-shadow: 0 2px 15px rgba(0,0,0,0.5); }
-        .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 35px; width: 100%; align-items: center; }
+        .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 3vh; width: 100%; align-items: center; }
         .row { display: flex; gap: 30px; justify-content: center; }
         
         .tile { position: relative; width: 14vw; height: 8.4vw; border-radius: 1.2vw; display: inline-flex; cursor: pointer; color: #fff; justify-content: center; align-items: center; transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
@@ -43,6 +43,10 @@
         .tile[data-app="hulu"] span { color: #000000; text-shadow: none; }
         .tile[data-app="peacock"] { background: linear-gradient(135deg, #151518 0%, #2a2c35 100%); }
         
+        .tile[data-app="spotify"] { background: #1DB954; }
+        .tile[data-app="appletv"] { background: linear-gradient(135deg, #1c1c1e 0%, #3a3a3c 100%); }
+        .tile[data-app="paramount"] { background: linear-gradient(135deg, #0064FF 0%, #002a6e 100%); }
+        .tile[data-app="livetv"], .tile[data-app="source"], .tile[data-app="internet"], .tile[data-app="tvplus"], .tile[data-app="settings"] { background: rgba(255,255,255,0.14); backdrop-filter: blur(6px); }
         /* Direct visual ring scale focus */
         .tile:hover, .tile:focus, .tile.focused { transform: scale(1.22); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.85); outline: 6px solid #ffffff !important; outline-offset: 4px; z-index: 10; }
     </style>
@@ -60,19 +64,29 @@
             <a class="tile" href="https://www.primevideo.com" data-app="prime" id="item-0-1"><span>Prime Video</span></a>
             <a class="tile" href="https://www.youtube.com/tv" data-app="youtube" id="item-0-2"><span>YouTube</span></a>
             <a class="tile" href="https://www.max.com" data-app="hbo" id="item-0-3"><span>Max</span></a>
+            <a class="tile" href="https://www.disneyplus.com" data-app="disney" id="item-0-4"><span>Disney+</span></a>
         </div>
         <div class="row">
-            <a class="tile" href="https://www.disneyplus.com" data-app="disney" id="item-1-0"><span>Disney+</span></a>
-            <a class="tile" href="https://www.hulu.com" data-app="hulu" id="item-1-1"><span>Hulu</span></a>
-            <a class="tile" href="https://www.peacocktv.com" data-app="peacock" id="item-1-2"><span>Peacock</span></a>
+            <a class="tile" href="https://www.hulu.com" data-app="hulu" id="item-1-0"><span>Hulu</span></a>
+            <a class="tile" href="https://www.peacocktv.com" data-app="peacock" id="item-1-1"><span>Peacock</span></a>
+            <a class="tile" href="https://open.spotify.com" data-app="spotify" id="item-1-2"><span>Spotify</span></a>
+            <a class="tile" href="https://tv.apple.com" data-app="appletv" id="item-1-3"><span>Apple TV</span></a>
+            <a class="tile" href="https://www.paramountplus.com" data-app="paramount" id="item-1-4"><span>Paramount+</span></a>
+        </div>
+        <div class="row">
+            <a class="tile" href="#" data-app="livetv" id="item-2-0"><span>Live TV</span></a>
+            <a class="tile" href="#" data-app="source" id="item-2-1"><span>Inputs</span></a>
+            <a class="tile" href="https://www.google.com" data-app="internet" id="item-2-2"><span>Internet</span></a>
+            <a class="tile" href="https://www.samsungtvplus.com" data-app="tvplus" id="item-2-3"><span>TV Plus</span></a>
+            <a class="tile" href="#" data-app="settings" id="item-2-4"><span>Settings</span></a>
         </div>
     </div>
 
     <script>
-        var layout = [["netflix","prime","youtube","hbo"],["disney","hulu","peacock"]];
+        var layout = [["netflix","prime","youtube","hbo","disney"],["hulu","peacock","spotify","appletv","paramount"],["livetv","source","internet","tvplus","settings"]];
         var row = 0, col = 0;
         // Native app IDs from this TV (sdb shell 0 applist); only used when running as an installed Tizen app
-        var appIds = { netflix: "org.tizen.netflix-app", prime: "org.tizen.primevideo", youtube: "9Ur5IzDKqV.TizenYouTube", hbo: "5b8c3eb16b.BeamCTVDev", disney: "MCmYXNxgcu.DisneyPlus", hulu: "LBUAQX1exg.Hulu", peacock: "gzcc4LRFBF.Peacock" };
+        var appIds = { netflix: "org.tizen.netflix-app", prime: "org.tizen.primevideo", youtube: "9Ur5IzDKqV.TizenYouTube", hbo: "5b8c3eb16b.BeamCTVDev", disney: "MCmYXNxgcu.DisneyPlus", hulu: "LBUAQX1exg.Hulu", peacock: "gzcc4LRFBF.Peacock", spotify: "rJeHak5zRg.Spotify", appletv: "com.samsung.tv.aria-video", paramount: "rJyOSqC6Up.CBSAllAccess", livetv: "com.samsung.tv.coba.livetv", source: "com.samsung.tv.coba.source", internet: "com.samsung.tv.knox-browser", tvplus: "com.samsung.tv.tvplus", settings: "com.samsung.tv.coba.setting" };
 
         function tile(r, c) { return document.getElementById("item-" + r + "-" + c); }
         function setFocus(r, c) { row = r; col = c; tile(r, c).focus(); }
