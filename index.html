@@ -30,7 +30,7 @@
         .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 3vh; width: 100%; align-items: center; }
         .row { display: flex; gap: 30px; justify-content: center; }
         
-        .tile { position: relative; width: 14vw; height: 8.4vw; border-radius: 1.2vw; display: inline-flex; cursor: pointer; color: #fff; justify-content: center; align-items: center; transition: transform 0.12s ease-out; will-change: transform; box-shadow: 0 6px 12px rgba(0,0,0,0.5); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .tile { position: relative; width: 14vw; height: 8.4vw; border-radius: 1.2vw; display: inline-flex; cursor: pointer; color: #fff; justify-content: center; align-items: center; box-shadow: 0 0 0 0 #ffffff; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
         .tile span { font-size: 1.5rem; font-weight: 700; color: #ffffff;  }
         
         .tile[data-app="netflix"] { background: #E50914; }
@@ -46,7 +46,7 @@
         .tile[data-app="paramount"] { background: linear-gradient(135deg, #0064FF 0%, #002a6e 100%); }
         .tile[data-app="livetv"], .tile[data-app="source"], .tile[data-app="settings"] { background: rgba(60,64,80,0.9); }
         /* Direct visual ring scale focus */
-        .tile:hover, .tile:focus, .tile.focused { transform: scale(1.22); outline: 6px solid #ffffff !important; outline-offset: 4px; z-index: 10; }
+        .tile.focused { box-shadow: 0 0 0 6px #ffffff; z-index: 10; }
     </style>
 </head>
 <body>
@@ -84,7 +84,15 @@
         var appIds = { netflix: "org.tizen.netflix-app", prime: "org.tizen.primevideo", youtube: "9Ur5IzDKqV.TizenYouTube", hbo: "5b8c3eb16b.BeamCTVDev", disney: "MCmYXNxgcu.DisneyPlus", hulu: "LBUAQX1exg.Hulu", peacock: "gzcc4LRFBF.Peacock", spotify: "rJeHak5zRg.Spotify", paramount: "rJyOSqC6Up.CBSAllAccess", livetv: "com.samsung.tv.coba.livetv", source: "com.samsung.tv.coba.source", settings: "com.samsung.tv.coba.setting" };
 
         function tile(r, c) { return document.getElementById("item-" + r + "-" + c); }
-        function setFocus(r, c) { row = r; col = c; tile(r, c).focus(); }
+        var cur = null;
+        function setFocus(r, c) {
+            row = r; col = c;
+            var t = tile(r, c);
+            if (cur === t) return;
+            if (cur) cur.classList.remove("focused");
+            t.classList.add("focused");
+            cur = t;
+        }
 
         var lastTime = "";
         function tick() {
@@ -103,8 +111,8 @@
             // Pointer hover also moves the tracked position so arrow keys continue from the cursor
             Array.prototype.forEach.call(document.querySelectorAll(".tile"), function (t) {
                 t.addEventListener("mouseenter", function () {
-                    var p = t.id.split("-"); row = +p[1]; col = +p[2];
-                    t.focus();
+                    var p = t.id.split("-");
+                    setFocus(+p[1], +p[2]);
                 });
                 t.addEventListener("click", function (e) {
                     var id = appIds[t.getAttribute("data-app")];
@@ -114,6 +122,7 @@
         };
 
         document.addEventListener("keydown", function (e) {
+            if (e.keyCode === 13) { e.preventDefault(); tile(row, col).click(); return; }
             var r = row, c = col;
             if (e.keyCode === 37 && c > 0) c--;
             else if (e.keyCode === 39 && c < layout[r].length - 1) c++;
