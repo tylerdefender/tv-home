@@ -27,6 +27,7 @@
         #clock-container { position: relative; z-index: 2; text-align: center; margin-top: 10px; }
         #status-bar { font-size: 9rem; font-weight: 200; letter-spacing: -3px; color: #ffffff;  line-height: 1; }
         #ampm { font-size: 2.6rem; font-weight: 400; letter-spacing: 0; margin-left: 1.2rem; vertical-align: top; position: relative; top: 1.6rem; opacity: 0.85; }
+        #toast { display: none; position: fixed; left: 5vw; right: 5vw; bottom: 2vh; padding: 14px 20px; border-radius: 12px; background: rgba(0,0,0,0.85); color: #fff; font-size: 1.1rem; z-index: 99; }
         #date-bar { font-size: 1.6rem; font-weight: 600; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; letter-spacing: 3px; margin-top: 15px;  }
         .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 3vh; width: 100%; align-items: center; }
         .row { display: flex; gap: 30px; justify-content: center; }
@@ -78,11 +79,13 @@
         </div>
     </div>
 
+    <div id="toast"></div>
+
     <script>
         var layout = [["netflix","prime","youtube","hbo","disney"],["hulu","peacock","spotify","paramount"],["livetv","source","settings"]];
         var row = 0, col = 0;
         // Native app IDs from this TV (sdb shell 0 applist); only used when running as an installed Tizen app
-        var appIds = { netflix: "org.tizen.netflix-app", prime: "org.tizen.primevideo", youtube: "9Ur5IzDKqV.TizenYouTube", hbo: "5b8c3eb16b.BeamCTVDev", disney: "MCmYXNxgcu.DisneyPlus", hulu: "LBUAQX1exg.Hulu", peacock: "gzcc4LRFBF.Peacock", spotify: "rJeHak5zRg.Spotify", paramount: "rJyOSqC6Up.CBSAllAccess", livetv: "com.samsung.tv.coba.livetv", source: "com.samsung.tv.coba.source", settings: "com.samsung.tv.coba.setting" };
+        var appIds = { netflix: "org.tizen.netflix-app", prime: "org.tizen.primevideo", youtube: "9Ur5IzDKqV.TizenYouTube", hbo: "5b8c3eb16b.BeamCTVDev", disney: "MCmYXNxgcu.DisneyPlus", hulu: "LBUAQX1exg.Hulu", peacock: "gzcc4LRFBF.Peacock", spotify: "rJeHak5zRg.Spotify", paramount: "rJyOSqC6Up.CBSAllAccess", livetv: ["com.samsung.tv.coba.livetv", "org.tizen.tv-viewer"], source: ["com.samsung.tv.coba.source", "org.tizen.app-selector", "com.samsung.tv.app-selector", "org.tizen.SMSourceAPP"], settings: ["com.samsung.tv.coba.setting", "org.tizen.homesetting", "org.tizen.menu", "com.samsung.tv.coba.setting.networksettings"] };
 
         function tile(r, c) { return document.getElementById("item-" + r + "-" + c); }
         function nearest(r) {
@@ -92,6 +95,29 @@
                 if (d < bd) { bd = d; best = i; }
             }
             return best;
+        }
+        var toastTimer;
+        function toast(msg) {
+            var el = document.getElementById("toast");
+            el.textContent = msg; el.style.display = "block";
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () { el.style.display = "none"; }, 8000);
+        }
+        function launchAny(ids, i, t, errs) {
+            if (i >= ids.length) {
+                if (t.getAttribute("href") !== "#") { location.href = t.href; return; }
+                toast("Could not open " + t.textContent + " | " + errs.join(" | "));
+                return;
+            }
+            try {
+                tizen.application.launch(ids[i], function () {}, function (err) {
+                    errs.push(ids[i] + ": " + (err && (err.name + " " + err.message)));
+                    launchAny(ids, i + 1, t, errs);
+                });
+            } catch (x) {
+                errs.push(ids[i] + ": " + x.name + " " + x.message);
+                launchAny(ids, i + 1, t, errs);
+            }
         }
         var cur = null;
         function setFocus(r, c) {
@@ -127,8 +153,10 @@
                     setFocus(+p[1], +p[2]);
                 });
                 t.addEventListener("click", function (e) {
-                    var id = appIds[t.getAttribute("data-app")];
-                    try { tizen.application.launch(id, function () {}, function () { location.href = t.href; }); e.preventDefault(); } catch (x) {}
+                    var ids = appIds[t.getAttribute("data-app")];
+                    if (typeof tizen === "undefined" || !ids) return; // plain browser: follow the link
+                    e.preventDefault();
+                    launchAny([].concat(ids), 0, t, []);
                 });
             });
         };
