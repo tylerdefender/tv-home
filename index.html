@@ -71,8 +71,8 @@
     <script>
         var layout = [["netflix","prime","youtube","hbo"],["disney","hulu","peacock"]];
         var row = 0, col = 0;
-        // Best-effort Tizen native app IDs (only used when running as an installed Tizen app)
-        var appIds = { netflix: "11101200001", youtube: "111299001912", prime: "3201512006785", disney: "3201901017640" };
+        // Native app IDs from this TV (sdb shell 0 applist); only used when running as an installed Tizen app
+        var appIds = { netflix: "org.tizen.netflix-app", prime: "org.tizen.primevideo", youtube: "9Ur5IzDKqV.TizenYouTube", hbo: "5b8c3eb16b.BeamCTVDev", disney: "MCmYXNxgcu.DisneyPlus", hulu: "LBUAQX1exg.Hulu", peacock: "gzcc4LRFBF.Peacock" };
 
         function tile(r, c) { return document.getElementById("item-" + r + "-" + c); }
         function setFocus(r, c) { row = r; col = c; tile(r, c).focus(); }
