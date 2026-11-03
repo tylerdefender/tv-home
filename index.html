@@ -29,12 +29,12 @@
         #ampm { font-size: 2.6rem; font-weight: 400; letter-spacing: 0; margin-left: 1.2rem; vertical-align: top; position: relative; top: 1.6rem; opacity: 0.85; }
         #toast { display: none; position: fixed; left: 5vw; right: 5vw; bottom: 2vh; padding: 14px 20px; border-radius: 12px; background: rgba(0,0,0,0.85); color: #fff; font-size: 1.1rem; z-index: 99; }
         #date-bar { font-size: 1.6rem; font-weight: 600; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; letter-spacing: 3px; margin-top: 15px;  }
-        .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; flex: 1; justify-content: center; width: 100%; align-items: center; padding-bottom: 6vh; }
-        .row { display: flex; justify-content: center; margin: 2.5vh 0; }
-        .row .tile { margin: 0 1.4vw; }
+        .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; flex: 1; justify-content: center; width: 100%; align-items: center; padding-top: 4vh; }
+        .row { display: flex; justify-content: center; margin: 1.6vh 0; }
+        .row .tile { margin: 0 1.5vw; }
         
-        .tile { position: relative; width: 14vw; height: 8.4vw; border-radius: 1.2vw; display: inline-flex; cursor: pointer; color: #fff; justify-content: center; align-items: center; box-shadow: 0 0 0 0 #ffffff; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .tile span { font-size: 1.5rem; font-weight: 700; color: #ffffff;  }
+        .tile { position: relative; width: 19vw; height: 10.4vw; border-radius: 1.5vw; display: inline-flex; cursor: pointer; color: #fff; justify-content: center; align-items: center; box-shadow: 0 0 0 0 #ffffff; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .tile span { font-size: 2.5rem; font-weight: 700; color: #ffffff;  }
         
         .tile[data-app="netflix"] { background: #E50914; }
         .tile[data-app="prime"] { background: #00A8E1; }
@@ -63,21 +63,23 @@
             <a class="tile" href="https://www.netflix.com" data-app="netflix" id="item-0-0"><span>Netflix</span></a>
             <a class="tile" href="https://www.primevideo.com" data-app="prime" id="item-0-1"><span>Prime Video</span></a>
             <a class="tile" href="https://www.youtube.com/tv" data-app="youtube" id="item-0-2"><span>YouTube</span></a>
-            <a class="tile" href="https://www.max.com" data-app="hbo" id="item-0-3"><span>Max</span></a>
-            <a class="tile" href="https://www.disneyplus.com" data-app="disney" id="item-0-4"><span>Disney+</span></a>
         </div>
         <div class="row">
-            <a class="tile" href="https://www.hulu.com" data-app="hulu" id="item-1-0"><span>Hulu</span></a>
-            <a class="tile" href="https://www.peacocktv.com" data-app="peacock" id="item-1-1"><span>Peacock</span></a>
-            <a class="tile" href="https://open.spotify.com" data-app="spotify" id="item-1-2"><span>Spotify</span></a>
-            <a class="tile" href="https://www.paramountplus.com" data-app="paramount" id="item-1-3"><span>Paramount+</span></a>
+            <a class="tile" href="https://www.max.com" data-app="hbo" id="item-1-0"><span>Max</span></a>
+            <a class="tile" href="https://www.disneyplus.com" data-app="disney" id="item-1-1"><span>Disney+</span></a>
+            <a class="tile" href="https://www.hulu.com" data-app="hulu" id="item-1-2"><span>Hulu</span></a>
+        </div>
+        <div class="row">
+            <a class="tile" href="https://www.peacocktv.com" data-app="peacock" id="item-2-0"><span>Peacock</span></a>
+            <a class="tile" href="https://open.spotify.com" data-app="spotify" id="item-2-1"><span>Spotify</span></a>
+            <a class="tile" href="https://www.paramountplus.com" data-app="paramount" id="item-2-2"><span>Paramount+</span></a>
         </div>
     </div>
 
     <div id="toast"></div>
 
     <script>
-        var layout = [["netflix","prime","youtube","hbo","disney"],["hulu","peacock","spotify","paramount"]];
+        var layout = [["netflix","prime","youtube"],["hbo","disney","hulu"],["peacock","spotify","paramount"]];
         var row = 0, col = 0;
         // Native app IDs from this TV (sdb shell 0 applist); only used when running as an installed Tizen app
         var appIds = { netflix: "org.tizen.netflix-app", prime: "org.tizen.primevideo", youtube: "9Ur5IzDKqV.TizenYouTube", hbo: "5b8c3eb16b.BeamCTVDev", disney: "MCmYXNxgcu.DisneyPlus", hulu: "LBUAQX1exg.Hulu", peacock: "gzcc4LRFBF.Peacock", spotify: "rJeHak5zRg.Spotify", paramount: "rJyOSqC6Up.CBSAllAccess" };
