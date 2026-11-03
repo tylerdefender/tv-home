@@ -29,8 +29,8 @@
         #ampm { font-size: 2.6rem; font-weight: 400; letter-spacing: 0; margin-left: 1.2rem; vertical-align: top; position: relative; top: 1.6rem; opacity: 0.85; }
         #toast { display: none; position: fixed; left: 5vw; right: 5vw; bottom: 2vh; padding: 14px 20px; border-radius: 12px; background: rgba(0,0,0,0.85); color: #fff; font-size: 1.1rem; z-index: 99; }
         #date-bar { font-size: 1.6rem; font-weight: 600; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; letter-spacing: 3px; margin-top: 15px;  }
-        .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 3vh; width: 100%; align-items: center; }
-        .row { display: flex; gap: 30px; justify-content: center; }
+        .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 5vh; width: 100%; align-items: center; }
+        .row { display: flex; gap: 2.6vw; justify-content: center; }
         
         .tile { position: relative; width: 14vw; height: 8.4vw; border-radius: 1.2vw; display: inline-flex; cursor: pointer; color: #fff; justify-content: center; align-items: center; box-shadow: 0 0 0 0 #ffffff; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
         .tile span { font-size: 1.5rem; font-weight: 700; color: #ffffff;  }
@@ -46,7 +46,6 @@
         
         .tile[data-app="spotify"] { background: #1DB954; }
         .tile[data-app="paramount"] { background: linear-gradient(135deg, #0064FF 0%, #002a6e 100%); }
-        .tile[data-app="livetv"], .tile[data-app="source"], .tile[data-app="settings"] { background: rgba(60,64,80,0.9); }
         /* Direct visual ring scale focus */
         .tile.focused { box-shadow: 0 0 0 6px #ffffff; z-index: 10; }
     </style>
@@ -72,20 +71,15 @@
             <a class="tile" href="https://open.spotify.com" data-app="spotify" id="item-1-2"><span>Spotify</span></a>
             <a class="tile" href="https://www.paramountplus.com" data-app="paramount" id="item-1-3"><span>Paramount+</span></a>
         </div>
-        <div class="row">
-            <a class="tile" href="#" data-app="livetv" id="item-2-0"><span>Live TV</span></a>
-            <a class="tile" href="#" data-app="source" id="item-2-1"><span>Inputs</span></a>
-            <a class="tile" href="#" data-app="settings" id="item-2-2"><span>Settings</span></a>
-        </div>
     </div>
 
     <div id="toast"></div>
 
     <script>
-        var layout = [["netflix","prime","youtube","hbo","disney"],["hulu","peacock","spotify","paramount"],["livetv","source","settings"]];
+        var layout = [["netflix","prime","youtube","hbo","disney"],["hulu","peacock","spotify","paramount"]];
         var row = 0, col = 0;
         // Native app IDs from this TV (sdb shell 0 applist); only used when running as an installed Tizen app
-        var appIds = { netflix: "org.tizen.netflix-app", prime: "org.tizen.primevideo", youtube: "9Ur5IzDKqV.TizenYouTube", hbo: "5b8c3eb16b.BeamCTVDev", disney: "MCmYXNxgcu.DisneyPlus", hulu: "LBUAQX1exg.Hulu", peacock: "gzcc4LRFBF.Peacock", spotify: "rJeHak5zRg.Spotify", paramount: "rJyOSqC6Up.CBSAllAccess", livetv: ["com.samsung.tv.coba.livetv", "org.tizen.tv-viewer"], source: ["com.samsung.tv.coba.source", "org.tizen.app-selector", "com.samsung.tv.app-selector", "org.tizen.SMSourceAPP"], settings: ["com.samsung.tv.coba.setting", "org.tizen.homesetting", "org.tizen.menu", "com.samsung.tv.coba.setting.networksettings"] };
+        var appIds = { netflix: "org.tizen.netflix-app", prime: "org.tizen.primevideo", youtube: "9Ur5IzDKqV.TizenYouTube", hbo: "5b8c3eb16b.BeamCTVDev", disney: "MCmYXNxgcu.DisneyPlus", hulu: "LBUAQX1exg.Hulu", peacock: "gzcc4LRFBF.Peacock", spotify: "rJeHak5zRg.Spotify", paramount: "rJyOSqC6Up.CBSAllAccess" };
 
         function tile(r, c) { return document.getElementById("item-" + r + "-" + c); }
         function nearest(r) {
