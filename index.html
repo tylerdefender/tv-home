@@ -13,8 +13,7 @@
         body {
             width: 100vw;
             height: 100vh;
-            background: linear-gradient(to top, rgba(10,11,15,0.8) 0%, rgba(10,11,15,0) 30%), linear-gradient(170deg, transparent 65%, #181c26 65.2%), linear-gradient(195deg, transparent 58%, #202b36 58.2%), linear-gradient(165deg, transparent 48%, #273340 48.2%), radial-gradient(circle at 65% 48%, #ffb366 0%, rgba(255,179,102,0.2) 20%, transparent 50%), linear-gradient(to top, #484b6a 0%, #212239 100%);
-            background-size: cover;
+            background: #212239 url(bg.jpg) center / cover no-repeat;
             color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
             overflow: hidden;
@@ -26,13 +25,13 @@
             -webkit-font-smoothing: antialiased;
         }
         #clock-container { position: relative; z-index: 2; text-align: center; margin-top: 10px; }
-        #status-bar { font-size: 9rem; font-weight: 200; letter-spacing: -3px; color: #ffffff; text-shadow: 0 4px 35px rgba(0, 0, 0, 0.6); line-height: 1; }
-        #date-bar { font-size: 1.6rem; font-weight: 600; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; letter-spacing: 3px; margin-top: 15px; text-shadow: 0 2px 15px rgba(0,0,0,0.5); }
+        #status-bar { font-size: 9rem; font-weight: 200; letter-spacing: -3px; color: #ffffff;  line-height: 1; }
+        #date-bar { font-size: 1.6rem; font-weight: 600; color: rgba(255, 255, 255, 0.85); text-transform: uppercase; letter-spacing: 3px; margin-top: 15px;  }
         .grid-container { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 3vh; width: 100%; align-items: center; }
         .row { display: flex; gap: 30px; justify-content: center; }
         
-        .tile { position: relative; width: 14vw; height: 8.4vw; border-radius: 1.2vw; display: inline-flex; cursor: pointer; color: #fff; justify-content: center; align-items: center; transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 20px 40px rgba(0,0,0,0.6); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .tile span { font-size: 1.5rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .tile { position: relative; width: 14vw; height: 8.4vw; border-radius: 1.2vw; display: inline-flex; cursor: pointer; color: #fff; justify-content: center; align-items: center; transition: transform 0.12s ease-out; will-change: transform; box-shadow: 0 6px 12px rgba(0,0,0,0.5); overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .tile span { font-size: 1.5rem; font-weight: 700; color: #ffffff;  }
         
         .tile[data-app="netflix"] { background: #E50914; }
         .tile[data-app="prime"] { background: #00A8E1; }
@@ -40,14 +39,14 @@
         .tile[data-app="hbo"] { background: linear-gradient(135deg, #002BE7 0%, #00041B 100%); }
         .tile[data-app="disney"] { background: linear-gradient(135deg, #021B79 0%, #0575E6 100%); }
         .tile[data-app="hulu"] { background: #1CE783; }
-        .tile[data-app="hulu"] span { color: #000000; text-shadow: none; }
+        .tile[data-app="hulu"] span { color: #000000;  }
         .tile[data-app="peacock"] { background: linear-gradient(135deg, #151518 0%, #2a2c35 100%); }
         
         .tile[data-app="spotify"] { background: #1DB954; }
         .tile[data-app="paramount"] { background: linear-gradient(135deg, #0064FF 0%, #002a6e 100%); }
-        .tile[data-app="livetv"], .tile[data-app="source"], .tile[data-app="settings"] { background: rgba(255,255,255,0.14); backdrop-filter: blur(6px); }
+        .tile[data-app="livetv"], .tile[data-app="source"], .tile[data-app="settings"] { background: rgba(60,64,80,0.9); }
         /* Direct visual ring scale focus */
-        .tile:hover, .tile:focus, .tile.focused { transform: scale(1.22); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.85); outline: 6px solid #ffffff !important; outline-offset: 4px; z-index: 10; }
+        .tile:hover, .tile:focus, .tile.focused { transform: scale(1.22); outline: 6px solid #ffffff !important; outline-offset: 4px; z-index: 10; }
     </style>
 </head>
 <body>
@@ -87,15 +86,19 @@
         function tile(r, c) { return document.getElementById("item-" + r + "-" + c); }
         function setFocus(r, c) { row = r; col = c; tile(r, c).focus(); }
 
+        var lastTime = "";
         function tick() {
             var d = new Date();
-            document.getElementById("status-bar").innerText = d.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit", hour12: false});
-            document.getElementById("date-bar").innerText = d.toLocaleDateString("en-US", {weekday: "long", month: "long", day: "numeric"});
+            var t = d.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit", hour12: false});
+            if (t === lastTime) return;
+            lastTime = t;
+            document.getElementById("status-bar").textContent = t;
+            document.getElementById("date-bar").textContent = d.toLocaleDateString("en-US", {weekday: "long", month: "long", day: "numeric"});
         }
 
         window.onload = function () {
             try { ["Left","Right","Up","Down","Enter"].forEach(function (k) { tizen.tvinputdevice.registerKey(k); }); } catch (e) {}
-            tick(); setInterval(tick, 1000);
+            tick(); setInterval(tick, 10000);
             setFocus(0, 0);
             // Pointer hover also moves the tracked position so arrow keys continue from the cursor
             Array.prototype.forEach.call(document.querySelectorAll(".tile"), function (t) {
